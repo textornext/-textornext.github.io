@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text or Next?</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #0f0f1a; color: #fff; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; transition: background 0.5s ease; }
+        .lang-selector { position: absolute; top: 20px; right: 20px; }
+        .lang-selector select { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; }
+        .container { max-width: 500px; width: 100%; padding: 40px 30px; background: rgba(255, 255, 255, 0.02); border-radius: 24px; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        h1 { font-size: 2.3rem; font-weight: 800; margin-bottom: 10px; background: linear-gradient(45deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.subtitle { color: #888; font-size: 1.1rem; margin-bottom: 40px; }
+        .btn { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; border: none; padding: 16px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; }
+        #result-box { display: none; margin-top: 35px; }
+        .level-title { font-size: 2.2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; }
+        .reason { font-size: 1.2rem; color: #eee; font-style: italic; margin-bottom: 30px; }
+        .lvl-1 { color: #00ff88; } .lvl-2 { color: #00d2ff; } .lvl-3 { color: #ffdd00; } .lvl-4 { color: #ff7300; } .lvl-5 { color: #ff0055; }
+        .share-btn { display: inline-block; background: #000; color: white; text-decoration: none; padding: 10px 22px; border-radius: 25px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="lang-selector">
+        <select id="langSelect" onchange="changeLanguage()">
+            <option value="en">English 🇬🇧</option>
+            <option value="es">Español 🇪🇸</option>
+            <option value="tr">Türkçe 🇹🇷</option>
+        </select>
+    </div>
+    <div class="container">
+        <h1 id="main-title">Should I text them?</h1>
+        <p id="main-subtitle" class="subtitle">Stop overthinking. Let destiny decide.</p>
+        <button class="btn" id="decide-btn" onclick="makeDecision()">LET DESTINY DECIDE</button>
+        <div id="result-box">
+            <div id="level-text" class="level-title"></div>
+            <div id="reason" class="reason"></div>
+            <a id="share-link" class="share-btn" href="#" target="_blank">𝕏 Share on X</a>
+        </div>
+    </div>
+    <script>
+        const translations = {
+            en: {
+                title: "Should I text them?", subtitle: "Stop overthinking. Let destiny decide.", button: "LET DESTINY DECIDE", thinking: "THINKING...", share: "𝕏 Share on X", shareText: "I asked textornext.com if I should text my ex. The result:",
+                levels: ["GREEN LIGHT 🟢", "CASUAL 🔹", "MAYBE 🟡", "WARNING 🟠", "DANGER 🔴"],
+                answers: [
+                    ["Just do it.", "Life moves pretty fast. If you don't stop and look around once in a while, you could miss it.", "You only live once.", "Send the text. Let's see how this disaster unfolds.", "Honestly? Go get your closure."],
+                    ["Do it, but keep it casual. No paragraphs, please.", "Shoot your shot, but have an exit plan.", "Fine, but if they leave you on read, don't cry to me.", "Text them, but sound like you don't care.", "A simple 'hey' won't kill you. Go ahead."],
+                    ["Error 404: Brain not found. Ask me again later.", "Flip a coin. If it lands on heads, put the phone down.", "Are you bored or do you actually miss them? Think about it.", "The universe is silent on this one. You're on your own, buddy.", "Do what you want, you're going to ignore my advice anyway."],
+                    ["Get some help.", "Stop it. Get some help.", "They saw your last story and still didn't text. Read the room.", "Remember why they became an ex in the first place.", "Delete the draft. You are better than this."],
+                    ["A clown costume doesn't suit you. Put the phone down.", "They are sleeping peacefully while you ruin your sleep schedule.", "God, please no! No! No! NOOOOO!", "It's a trap!", "Go drink a glass of water and close the chat right now."]
+                ]
+            },
+            es: {
+                title: "¿Debería escribirle?", subtitle: "Deja de pensarlo tanto. Que el destino decida.", button: "QUE EL DESTINO DECIDA", thinking: "PENSANDO...", share: "𝕏 Compartir en X", shareText: "Le pregunté a textornext.com si debería escribirle a mi ex. El resultado:",
+                levels: ["LUZ VERDE 🟢", "CASUAL 🔹", "TAL VEZ 🟡", "ADVERTENCIA 🟠", "PELIGRO 🔴"],
+                answers: [
+                    ["Simplemente hazlo.", "La vida pasa rápido. Si no te detienes a mirar de vez en cuando, te la perderás.", "Solo se vive una vez.", "Envía el mensaje. Veamos cómo se desarrolla este desastre.", "Sinceramente, ve a cerrar ese ciclo."],
+                    ["Hazlo, pero sé casual. Sin testamentos, por favor.", "Arriésgate, pero ten un plan de escape.", "Bien, pero si te deja en visto, no me llores.", "Escríbele, pero que parezca que no te importa.", "Un simple 'hola' no te matará. Adelante."],
+                    ["Error 404: Cerebro no encontrado. Pregúntame más tarde.", "Lanza una moneda. Si sale cara, suelta el teléfono.", "¿Estás aburrido o realmente le extrañas? Piénsalo.", "El universo está en silencio hoy. Estás solo en esto, amigo.", "Haz lo que quieras, vas a ignorar mi consejo de todos modos."],
+                    ["Busca ayuda.", "¡Detente! Busca un poco de ayuda.", "Vio tu última historia y aun así no escribió. Capta the indirecta.", "Recuerda por qué se convirtió en tu ex en primer lugar.", "Borra el borrador. Eres mejor que esto."],
+                    ["El disfraz de payaso no te queda bien. Suelta el teléfono.", "Está durmiendo en paz mientras tú arruinas tu horario de sueño.", "¡Dios, por favor no! ¡No! ¡No! ¡NOOOOO!", "¡Es una trampa!", "Ve a beber un vaso de agua y cierra el chat ahora mismo."]
+                ]
+            },
+            tr: {
+                title: "Eski sevgilime yazmalı mıyım?", subtitle: "Düşünmeyi bırak. Bırak kader karar versin.", button: "KADERİMİ ÇEK", thinking: "DÜŞÜNÜLÜYOR...", share: "𝕏 X'te Paylaş", shareText: "textornext.com sitesine eski sevgilime yazıp yazmamayı sordum. Sonuç:",
+                levels: ["YEŞİL IŞIK 🟢", "GAYET COOL 🔹", "BELKİ DE 🟡", "HAFİF UYARI 🟠", "TEHLİKE REİS 🔴"],
+                answers: [
+                    ["Sadece yap gitsin.", "Hayat çok hızlı geçiyor. Arada durup etrafa bakmazsan kaçırabilirsin.", "Dünyaya bir daha mı geleceksin? Yaz.", "Gönder gitsin. Bakalım bu felaket nasıl sonuçlanacak.", "Dürüst olmak gerekirse? Git ve o hesabı kapat."],
+                    ["Yaz ama cool davran. Destan yazma lütfen.", "Şansını dene ama bir kaçış planın olsun.", "İyi yaz, ama görüldü atarsa gelip bana ağlama.", "Mesaj at ama umursamıyormuş gibi davran.", "Kuru bir 'selam' seni öldürmez. Dene bakalım."],
+                    ["Hata 404: Beyin bulunamadı. Sonra tekrar sor.", "Yazı tura at. Tura gelirse o telefonu hemen yere bırak.", "Canın mı sıkılıyor yoksa gerçekten özledin mi? İyi düşün.", "Evren bu konuda sessiz. Tamamen yalnızsın dostum.", "Ne istiyorsan yap, zaten beni dinlemeyeceksin."],
+                    ["Git bir yardım al.", "Yapma şunu. Git biraz yardım al.", "Son hikayeni gördü ama hala yazmadı. Durumu kavra artık.", "İlk başta neden eski sevgili olduğunu hatırla.", "Taslağı sil. Sen bundan daha iyisin."],
+                    ["Palyaço kostümü sana hiç yakışmıyor. Telefonu bırak.", "O şu an mışıl mışıl uyuyor, sen uyku düzenini mahvediyorsun.", "Tanrım lütfen hayır! Hayır! Hayır! HAYIIIRR!", "Bu bir tuzak!", "Git bir bardak su iç ve o sohbeti hemen kapat."]
+                ]
+            }
+        };
+        let currentLang = 'en';
+
+        function changeLanguage() {
+            currentLang = document.getElementById('langSelect').value;
+            const t = translations[currentLang];
+            document.getElementById('main-title').innerText = t.title;
+            document.getElementById('main-subtitle').innerText = t.subtitle;
+            document.getElementById('decide-btn').innerText = t.button;
+            document.getElementById('share-link').innerText = t.share;
+            const resultBox = document.getElementById('result-box');
+            if (resultBox.style.display === "block") {
+                const activeLvl = resultBox.getAttribute('data-active-lvl');
+                const activeIdx = resultBox.getAttribute('data-active-idx');
+                if(activeLvl !== null) {
+                    document.getElementById('level-text').innerText = t.levels[activeLvl];
+                    document.getElementById('reason').innerText = `"${t.answers[activeLvl][activeIdx]}"`;
+                    updateShareLink(t.levels[activeLvl], t.answers[activeLvl][activeIdx]);
+                }
+            }
+        }
+
+        function makeDecision() {
+            const btn = document.getElementById('decide-btn');
+            const resultBox = document.getElementById('result-box');
+            const levelTextDiv = document.getElementById('level-text');
+            const reasonDiv = document.getElementById('reason');
+            const t = translations[currentLang];
+            btn.innerText = t.thinking;
+            btn.disabled = true;
+            document.body.style.background = "#0f0f1a";
+            setTimeout(() => {
+                const rand = Math.random();
+                let lvl = 0; 
+                if (rand < 0.10) lvl = 0;
+                else if (rand < 0.25) lvl = 1;
+                else if (rand < 0.40) lvl = 2;
+                else if (rand < 0.70) lvl = 3;
+                else lvl = 4;
+                const answerIdx = Math.floor(Math.random() * 5);
+                const finalLevelName = t.levels[lvl];
+                const finalAnswer = t.answers[lvl][answerIdx];
+                const bgColors = [
+                    "linear-gradient(135deg, #0f0f1a, #0a2f1d)", 
+                    "linear-gradient(135deg, #0f0f1a, #0a253a)", 
+                    "linear-gradient(135deg, #0f0f1a, #2b250a)", 
+                    "linear-gradient(135deg, #0f0f1a, #2f1d0a)", 
+                    "linear-gradient(135deg, #0f0f1a, #330a15)"  
+                ];
+                document.body.style.background = bgColors[lvl];
+                levelTextDiv.className = "level-title lvl-" + (lvl + 1);
+                levelTextDiv.innerText = finalLevelName;
+                reasonDiv.innerText = `"${finalAnswer}"`;
+                resultBox.setAttribute('data-active-lvl', lvl);
+                resultBox.setAttribute('data-active-idx', answerIdx);
+                updateShareLink(finalLevelName, finalAnswer);
+                resultBox.style.display = "block";
+                btn.innerText = t.button;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        function updateShareLink(lvlName, answer) {
+            const t = translations[currentLang];
+            const tweetText = `${t.shareText} ${lvlName} - ${answer} 😂 @textornext`;
+            document.getElementById('share-link').href = `https://twitter.com{encodeURIComponent(tweetText)}&url=${encodeURIComponent(window.location.href)}`;
+        }
+    </script>
+</body>
+</html>
+
