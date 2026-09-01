@@ -6,8 +6,9 @@
     <title>Text or Next? - Let Destiny Decide</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Segoe UI', sans-serif; }
+        
         body { 
-            background: radial-gradient(circle at center, #0b112c 0%, #050714 100%); 
+            background: radial-gradient(circle at center, #11131a 0%, #050608 100%); 
             color: #fff; 
             height: 100vh; 
             display: flex; 
@@ -18,43 +19,123 @@
             padding: 20px;
             overflow: hidden;
             position: relative;
+            transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Gece parıldayan yıldızlar */
+
+        /* Arka plandaki hareketli galaksi bulutu */
+        .galaxy-nebula {
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.02) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: galaxyRotate 60s infinite linear;
+            transition: background 1.2s ease;
+        }
+        @keyframes galaxyRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* KENDİ ETRAFIDAN DÖNEN 3D GEZEGENLER */
+        .planet-wrapper { position: absolute; z-index: 0; pointer-events: none; display: flex; justify-content: center; align-items: center; }
+        
+        .planet {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #5d6275 0%, #111216 100%);
+            box-shadow: inset -15px -15px 30px rgba(0,0,0,0.9), 0 0 25px rgba(255,255,255,0.03);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: planetSpin var(--spin-speed) infinite linear;
+        }
+        @keyframes planetSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* JÜPİTER: Arkası gizlenen gerçekçi halka sistemi */
+        .pw-one { width: 130px; height: 130px; top: 15%; left: 10%; animation: floatOne 8s infinite ease-in-out; }
+        
+        /* Halkanın Gezegenin Arkasında Kalan Kısmı (Z-index: -1 ile gizli) */
+        .pw-one .ring-back {
+            position: absolute; width: 240px; height: 70px;
+            border: 8px solid rgba(255, 255, 255, 0.04); border-radius: 50%;
+            transform: rotate(-15deg); z-index: -1; clip-path: inset(0 0 50% 0);
+            transition: all 1.2s ease;
+        }
+        /* Halkanın Gezegenin Önünden Geçen Kısmı (Z-index: 1 ile önde) */
+        .pw-one .ring-front {
+            position: absolute; width: 240px; height: 70px;
+            border: 8px solid rgba(255, 255, 255, 0.08); border-radius: 50%;
+            transform: rotate(-15deg); z-index: 1; clip-path: inset(50% 0 0 0);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.02);
+            transition: all 1.2s ease;
+        }
+
+        .pw-two { width: 85px; height: 85px; bottom: 18%; right: 12%; animation: floatTwo 10s infinite ease-in-out; }
+        .pw-three { width: 50px; height: 50px; top: 22%; right: 28%; animation: floatOne 12s infinite ease-in-out; }
+
+        @keyframes floatOne { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes floatTwo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+        /* RENK GEÇİŞLERİ VE GEZEGEN PARLAMALARI */
+        body.bg-text .galaxy-nebula { background: radial-gradient(circle at 40% 40%, rgba(0, 102, 255, 0.22) 0%, transparent 60%); }
+        body.bg-text .planet { background: radial-gradient(circle at 30% 30%, #0052cc 0%, #041026 100%); box-shadow: inset -15px -15px 30px rgba(0,0,0,0.95), 0 0 35px rgba(0, 102, 255, 0.4); }
+        body.bg-text .pw-one .ring-back { border-color: rgba(0, 162, 255, 0.2); }
+        body.bg-text .pw-one .ring-front { border-color: rgba(0, 162, 255, 0.3); box-shadow: 0 5px 20px rgba(0, 162, 255, 0.2); }
+
+        body.bg-next .galaxy-nebula { background: radial-gradient(circle at 40% 40%, rgba(255, 51, 102, 0.22) 0%, transparent 60%); }
+        body.bg-next .planet { background: radial-gradient(circle at 30% 30%, #ff3366 0%, #300410 100%); box-shadow: inset -15px -15px 30px rgba(0,0,0,0.95), 0 0 35px rgba(255, 51, 102, 0.4); }
+        body.bg-next .pw-one .ring-back { border-color: rgba(255, 51, 102, 0.2); }
+        body.bg-next .pw-one .ring-front { border-color: rgba(255, 51, 102, 0.3); box-shadow: 0 5px 20px rgba(255, 51, 102, 0.2); }
+
+        /* YILDIZLAR VE DİNAMİK YÖN ANİMASYONLARI */
         .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .star { position: absolute; background: #fff; border-radius: 50%; opacity: 0.3; animation: blink 3s infinite ease-in-out; }
-        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: starBlink var(--duration) infinite ease-in-out; opacity: var(--opacity); }
+        @keyframes starBlink { 0%, 100% { opacity: 0.1; transform: scale(0.8); } 50% { opacity: var(--max-opacity); transform: scale(1.3); } }
+
+        /* Gelişmiş Göktaşı Yapısı */
+        .shooting-star { position: absolute; width: var(--size); height: var(--size); background: linear-gradient(var(--angle), #fff, transparent); opacity: 0; }
+
+        /* TEXT VE NEXT PANEL AYARLARI */
+        .container { max-width: 450px; width: 100%; padding: 45px 30px; background: rgba(255, 255, 255, 0.01); border-radius: 24px; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.03); z-index: 1; box-shadow: 0 30px 70px rgba(0,0,0,0.4); }
+        h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 35px; letter-spacing: -0.5px; color: rgba(255,255,255,0.95); text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .btn { background: #fff; color: #050714; border: none; padding: 18px 38px; font-size: 1.15rem; font-weight: 700; border-radius: 50px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.5px; animation: btnPulse 3s infinite; }
+        .btn:hover { background: rgba(255,255,255,0.95); transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255,255,255,0.2); }
+        .btn:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); cursor: not-allowed; animation: none; transform: none; box-shadow: none; }
+        @keyframes btnPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); } 50% { box-shadow: 0 0 0 15px rgba(255,255,255,0); } }
+        #result-box { margin-top: 40px; display: none; animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .decision-text { font-size: 4rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 30px; text-transform: uppercase; }
         
-        .container { 
-            max-width: 450px; 
-            width: 100%; 
-            padding: 40px 25px; 
-            background: rgba(255, 255, 255, 0.01); 
-            border-radius: 20px; 
-            backdrop-filter: blur(8px); 
-            border: 1px solid rgba(255, 255, 255, 0.04); 
-            z-index: 1;
-        }
-        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px; color: rgba(255,255,255,0.95); }
-        .btn { background: #fff; color: #050714; border: none; padding: 16px 35px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.5px; }
-        .btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(255,255,255,0.1); }
-        .btn:disabled { background: rgba(255,255,255,0.3); cursor: not-allowed; transform: none; }
-        
-        #result-box { display: none; margin-top: 35px; animation: fadeIn 0.4s ease-out; }
-        .decision-text { font-size: 3rem; font-weight: 900; letter-spacing: 4px; margin-bottom: 25px; text-transform: uppercase; }
-        .text-style { color: #00ffaa; text-shadow: 0 0 20px rgba(0,255,170,0.4); }
-        .next-style { color: #ff3366; text-shadow: 0 0 20px rgba(255,51,102,0.4); }
-        .share-btn { display: inline-block; background: transparent; color: rgba(255,255,255,0.6); text-decoration: none; padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); font-size: 0.85rem; transition: all 0.2s; }
-        .share-btn:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.05); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* TEXT YAZISI AÇIK VE SOLGUN BUZUL MAVİSİ OLDU */
+        .text-style { color: #99ddff; animation: neonBlue 1.5s infinite alternate; }
+        .next-style { color: #ff3366; animation: neonRed 1.5s infinite alternate; }
+        @keyframes neonBlue { 0% { text-shadow: 0 0 10px rgba(153,221,255,0.5), 0 0 20px rgba(153,221,255,0.3); } 100% { text-shadow: 0 0 15px rgba(153,221,255,0.8), 0 0 30px rgba(153,221,255,0.5); } }
+        @keyframes neonRed { 0% { text-shadow: 0 0 10px rgba(255,51,102,0.6), 0 0 20px rgba(255,51,102,0.4); } 100% { text-shadow: 0 0 15px rgba(255,51,102,0.9), 0 0 30px rgba(255,51,102,0.7); } }
+        .share-btn { display: inline-block; background: transparent; color: rgba(255,255,255,0.5); text-decoration: none; padding: 10px 22px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.15); font-size: 0.9rem; font-weight: 600; transition: all 0.3s; }
+        .share-btn:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.07); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Arka plandaki yıldızlar için alan -->
+    <!-- Arka plandaki hareketli canlı galaksi bulutu katmanı -->
+    <div class="galaxy-nebula"></div>
+    
+    <!-- Jüpiter Benzeri Halkalı Gezegen (Arkası gizlenmiş gerçekçi halka sistemiyle) -->
+    <div class="planet-wrapper pw-one">
+        <div class="ring-back"></div>
+        <div class="planet" style="--spin-speed: 25s;"></div>
+        <div class="ring-front"></div>
+    </div>
+
+    <!-- Kendi etrafında dönen diğer iki gezegen -->
+    <div class="planet-wrapper pw-two">
+        <div class="planet" style="--spin-speed: 35s;"></div>
+    </div>
+    <div class="planet-wrapper pw-three">
+        <div class="planet" style="--spin-speed: 15s;"></div>
+    </div>
+    
+    <!-- Yıldızların ve göktaşlarının akacağı ana alan -->
     <div class="stars" id="starContainer"></div>
 
     <div class="container">
-        <h1>Should I text them?</h1>
+        <h1>Should I Text My Ex?</h1>
         
         <button class="btn" id="decide-btn" onclick="makeDecision()">LET DESTINY DECIDE</button>
 
@@ -65,30 +146,127 @@
     </div>
 
     <script>
-        // Sayfa açıldığında arka plana rastgele parıldayan 80 tane yıldız yerleştiren fonksiyon
-        function createStars() {
+        // Gökyüzüne parıldayan yıldızları serpen motor
+        function buildCosmos() {
             const container = document.getElementById('starContainer');
-            for (let i = 0; i < 80; i++) {
+            
+            // 120 tane yanıp sönen karmaşık sabit yıldız oluşturma
+            for (let i = 0; i < 120; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                
-                // Yıldız boyutları (1 ila 3 piksel arası nokta şeklinde)
                 const size = Math.random() * 2 + 1;
                 star.style.width = `${size}px`;
                 star.style.height = `${size}px`;
-                
-                // Rastgele konumlandırma
                 star.style.top = `${Math.random() * 100}%`;
                 star.style.left = `${Math.random() * 100}%`;
                 
-                // Her yıldız farklı zamanlarda parıldasın diye rastgele gecikme süresi
-                star.style.animationDelay = `${Math.random() * 3}s`;
+                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                star.style.setProperty('--opacity', `${Math.random() * 0.4 + 0.1}`);
+                star.style.setProperty('--max-opacity', `${Math.random() * 0.6 + 0.4}`);
+                star.style.animationDelay = `${Math.random() * 5}s`;
                 
                 container.appendChild(star);
             }
         }
-        // Yıldızları oluştur
-        createStars();
+        buildCosmos();
+
+        // Her çağrıldığında ekrana dinamik ve yönü ayarlanabilir göktaşları fırlatan motor
+        let shootInterval;
+        function startShootingStars(mode) {
+            clearInterval(shootInterval);
+            const container = document.getElementById('starContainer');
+
+            // Belirli aralıklarla sürekli yeni kayan yıldız üretir
+            shootInterval = setInterval(() => {
+                // Ekrandaki eski kayan yıldızları temizle ki kasma yapmasın
+                const oldStars = container.querySelectorAll('.shooting-star');
+                if(oldStars.length > 25) oldStars[0].remove();
+
+                const star = document.createElement('div');
+                star.className = 'shooting-star';
+                
+                const size = Math.random() * 2 + 1;
+                star.style.setProperty('--size', `${size}px`);
+                
+                let startX, startY, endX, endY, angle, duration;
+
+                if (mode === 'default') {
+                    // İlk Açılış: 4-5 Farklı bölgeden, tamamen karışık ve yavaş kayış (3-5 saniye arası)
+                    angle = '-45deg';
+                    duration = `${Math.random() * 2 + 3}s`; 
+                    startX = `${Math.random() * 100}%`;
+                    startY = `${Math.random() * 50}%`;
+                    endX = `calc(${startX} - 200px)`;
+                    endY = `calc(${startY} + 200px)`;
+                } else if (mode === 'next') {
+                    // NEXT Ekranı: Soldan SAĞA DOĞRU fırtına (Orta hızda: 1.5 - 2.2 saniye arası)
+                    // Rastgele yön varyasyonları (Sağ-Yukarı, Sağ-Aşağı, Sağ-Çapraz, Sağ-Düz)
+                    const dice = Math.random();
+                    if(dice < 0.25) { angle = '20deg'; endY = 'calc(var(--y) - 150px)'; } // Sağ Yukarı
+                    else if(dice < 0.50) { angle = '-20deg'; endY = 'calc(var(--y) + 150px)'; } // Sağ Aşağı
+                    else if(dice < 0.75) { angle = '45deg'; endY = 'calc(var(--y) + 250px)'; } // Çapraz Aşağı
+                    else { angle = '0deg'; endY = 'var(--y)'; } // Düz Sağ
+                    
+                    duration = `${Math.random() * 0.7 + 1.5}s`;
+                    star.style.setProperty('--y', `${Math.random() * 100}%`);
+                    star.style.top = 'var(--y)';
+                    star.style.left = '-50px';
+                    star.style.styleFloat = 'left';
+                    
+                    // CSS animasyonunu dinamik olarak enjekte etme
+                    star.style.animation = `shootR ${duration} linear forwards`;
+                } else if (mode === 'text') {
+                    // TEXT Ekranı: Sağdan SOLA DOĞRU akış (Orta hızda: 1.5 - 2.2 saniye arası)
+                    // Rastgele yön varyasyonları (Sol-Yukarı, Sol-Aşağı, Sol-Çapraz, Sol-Düz)
+                    const dice = Math.random();
+                    if(dice < 0.25) { angle = '-160deg'; endY = 'calc(var(--y) - 150px)'; } // Sol Yukarı
+                    else if(dice < 0.50) { angle = '160deg'; endY = 'calc(var(--y) + 150px)'; } // Sol Aşağı
+                    else if(dice < 0.75) { angle = '-135deg'; endY = 'calc(var(--y) + 250px)'; } // Çapraz Sol Aşağı
+                    else { angle = '180deg'; endY = 'var(--y)'; } // Düz Sol
+                    
+                    duration = `${Math.random() * 0.7 + 1.5}s`;
+                    star.style.setProperty('--y', `${Math.random() * 100}%`);
+                    star.style.top = 'var(--y)';
+                    star.style.left = 'calc(100% + 50px)';
+                    
+                    star.style.animation = `shootL ${duration} linear forwards`;
+                }
+
+                if(mode === 'default') {
+                    star.style.left = startX;
+                    star.style.top = startY;
+                    star.style.setProperty('--angle', angle);
+                    // CSS Keyframe'i koda gömülü
+                    star.animate([
+                        { opacity: 0, width: '0px' },
+                        { opacity: 1, width: '40px', offset: 0.1 },
+                        { transform: `translate(-250px, 250px)`, opacity: 0, width: '0px' }
+                    ], { duration: parseFloat(duration)*1000, iterations: Infinity });
+                } else {
+                    star.style.setProperty('--angle', angle);
+                    // Dinamik sağa/sola akış simulasyonu keyframe tanımları
+                    if(mode === 'next') {
+                        star.animate([
+                            { transform: 'translateX(0)', opacity: 0, width: '0px' },
+                            { opacity: 1, width: '60px', offset: 0.1 },
+                            { transform: `translate(calc(100vw + 100px), ${endY.replace('var(--y)', '0px')})`, opacity: 0, width: '0px' }
+                        ], { duration: parseFloat(duration)*1000 });
+                    } else {
+                        star.animate([
+                            { transform: 'translateX(0)', opacity: 0, width: '0px' },
+                            { opacity: 1, width: '60px', offset: 0.1 },
+                            { transform: `translate(calc(-100vw - 100px), ${endY.replace('var(--y)', '0px')})`, opacity: 0, width: '0px' }
+                        ], { duration: parseFloat(duration)*1000 });
+                    }
+                }
+
+                container.appendChild(star);
+            }, mode === 'default' ? 1200 : 250); // Sonuç ekranlarında daha sık göktaşı fırlatır
+        }
+
+        // İlk açılışta sakin ve karışık göktaşlarını başlat
+        startShootingStars('default');
+
         function makeDecision() {
             const btn = document.getElementById('decide-btn');
             const resultBox = document.getElementById('result-box');
@@ -98,30 +276,35 @@
             btn.innerText = "THINKING...";
             btn.disabled = true;
 
+            document.body.className = "";
+
             setTimeout(() => {
-                // %50 TEXT, %50 NEXT tam adil olasılık dağılımı
                 const isText = Math.random() < 0.5;
                 let resultText = "";
 
                 if (isText) {
                     resultText = "TEXT";
                     decisionDiv.className = "decision-text text-style";
+                    document.body.className = "bg-text"; 
+                    startShootingStars('text'); // Yıldızları orta hızda sola fırlatır
                 } else {
                     resultText = "NEXT";
                     decisionDiv.className = "decision-text next-style";
+                    document.body.className = "bg-next"; 
+                    startShootingStars('next'); // Yıldızları orta hızda sağa fırlatır
                 }
 
                 decisionDiv.innerText = resultText;
                 
-                // Twitter/X Paylaşım linki (Ultra sade global format)
                 const tweetText = `I asked textornext.com if I should text my ex. The universe said: ${resultText} 🪐`;
                 shareLink.href = `https://twitter.com{encodeURIComponent(tweetText)}&url=${encodeURIComponent(window.location.href)}`;
 
                 resultBox.style.display = "block";
-                btn.innerText = "TRY AGAIN";
+                btn.innerText = "CHANGE MY DESTINY";
                 btn.disabled = false;
-            }, 1000);
+            }, 1200);
         }
     </script>
 </body>
 </html>
+
